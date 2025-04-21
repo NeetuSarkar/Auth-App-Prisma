@@ -9,6 +9,7 @@ const ForgetPassword = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [sending, setSending] = useState(false);
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,12 +20,14 @@ const ForgetPassword = () => {
     setSending(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/auth/forgot-password",
+        `${API_BASE_URL}/api/auth/forgot-password`,
         formData
       );
       setSuccessMessage(data.message);
       setError("");
-      navigate("/verify-otp", { state: { email: formData.email } });
+      navigate("/verify-otp", {
+        state: { email: formData.email },
+      });
 
       setSending(false);
     } catch (err) {

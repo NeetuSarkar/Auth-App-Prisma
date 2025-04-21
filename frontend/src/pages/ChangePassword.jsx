@@ -1,13 +1,21 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const ChangePassword = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [sending, setSending] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const emailFromState = location.state?.email || "";
+  const [formData, setFormData] = useState({
+    password: "",
+    confirmPassword: "",
+  });
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,16 +23,27 @@ const ChangePassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match.");
+      setSuccessMessage("");
+      return;
+    }
+
     setSending(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/auth/change-password",
-        formData
+        `${API_BASE_URL}/api/auth/change-password`,
+        {
+          email: emailFromState,
+          password: formData.password,
+        }
       );
-      setSuccessMessage(data.message); // assuming your backend sends { message: "Password changed successfully" }
+      setSuccessMessage(data.message || "Password changed successfully");
       setError("");
       setSending(false);
-      navigate("/login"); // redirect to login page after success
+      navigate("/login", { replace: true });
     } catch (err) {
       setError(
         err.response?.data?.message || "Something went wrong. Try again."
@@ -48,21 +67,6 @@ const ChangePassword = () => {
         )}
 
         <div className="mb-4">
-          <label className="block mb-1 font-medium" htmlFor="email">
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
-          />
-        </div>
-
-        <div className="mb-4">
           <label className="block mb-1 font-medium" htmlFor="password">
             New Password
           </label>
@@ -71,6 +75,21 @@ const ChangePassword = () => {
             id="password"
             name="password"
             value={formData.password}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+          />
+        </div>
+
+        <div className="mb-6">
+          <label className="block mb-1 font-medium" htmlFor="confirmPassword">
+            Re-enter Password
+          </label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            value={formData.confirmPassword}
             onChange={handleChange}
             required
             className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300"

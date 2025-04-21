@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 const Home = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -16,7 +17,7 @@ const Home = () => {
       }
 
       try {
-        const { data } = await axios.get("http://localhost:8080/api/auth/me", {
+        const { data } = await axios.get(`${API_BASE_URL}/api/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUser(data);

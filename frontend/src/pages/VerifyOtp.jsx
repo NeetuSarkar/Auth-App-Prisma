@@ -5,7 +5,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 const VerifyOtp = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const emailFromState = location.state?.email || "";
   const [formData, setFormData] = useState({ email: emailFromState, otp: "" });
   const [error, setError] = useState("");
@@ -13,6 +12,7 @@ const VerifyOtp = () => {
   const [sending, setSending] = useState(false);
   const [otpCooldown, setOtpCooldown] = useState(true);
   const [timer, setTimer] = useState(60);
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   const maskEmail = (email) => {
     const [name, domain] = email.split("@");
@@ -59,11 +59,14 @@ const VerifyOtp = () => {
     setError("");
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/auth/verify-otp",
+        `${API_BASE_URL}/api/auth/verify-otp`,
         formData
       );
       setSuccessMessage(data.message);
-      navigate("/change-password", { state: { email: formData.email } });
+      navigate("/change-password", {
+        replace: true,
+        state: { email: formData.email },
+      });
     } catch (error) {
       setError(error.response?.data?.message || "Something went wrong");
     }

@@ -11,6 +11,8 @@ const Register = () => {
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,7 +21,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/api/auth/register", formData);
+      await axios.post(`${API_BASE_URL}/api/auth/register`, formData);
       navigate("/login");
     } catch (error) {
       console.error(error.response.data.message);
